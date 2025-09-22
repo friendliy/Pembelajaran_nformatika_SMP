@@ -5,6 +5,16 @@ let quizStartTime;
 let timerInterval;
 let timeLimit = 30 * 60; // 30 minutes in seconds
 
+// Initialize cloud manager when available
+let cloudManager = null;
+document.addEventListener('DOMContentLoaded', function() {
+  if (window.CloudDataManager) {
+    cloudManager = new CloudDataManager();
+    console.log('🌐 Cloud manager initialized');
+  }
+  addSampleData();
+});
+
 // Load questions and initialize quiz
 fetch("questions.json")
   .then(res => res.json())
@@ -239,6 +249,18 @@ function calculateAndShowResults() {
   else if (finalScore >= 60) grade = 'D (Poor)';
   else grade = 'E (Fail)';
   
+  // Store results with all necessary data - Get current user info safely
+  let loggedInUser = null;
+  try {
+    if (typeof getCurrentUser === 'function') {
+      loggedInUser = getCurrentUser();
+    }
+  } catch (error) {
+    console.warn('Auth function not available for saving:', error);
+  }
+  
+  const username = loggedInUser ? loggedInUser.fullName : studentName;
+  
   resultElement.innerHTML = `
     <h2>🎉 Hasil Quiz - ${username}</h2>
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin: 20px 0;">
@@ -262,18 +284,6 @@ function calculateAndShowResults() {
     <button onclick="showDetailedResults()" style="background: #17a2b8; margin: 10px 5px;">📊 Lihat Detail Jawaban</button>
     <button onclick="resetQuiz()" style="background: #28a745; margin: 10px 5px;">🔄 Ulangi Quiz</button>
   `;
-  
-  // Store results with all necessary data - Get current user info safely
-  let loggedInUser = null;
-  try {
-    if (typeof getCurrentUser === 'function') {
-      loggedInUser = getCurrentUser();
-    }
-  } catch (error) {
-    console.warn('Auth function not available for saving:', error);
-  }
-  
-  const username = loggedInUser ? loggedInUser.fullName : studentName;
   const userRole = loggedInUser ? loggedInUser.role : 'guest';
   
   let scores = JSON.parse(localStorage.getItem("scores")) || [];
@@ -299,7 +309,7 @@ function calculateAndShowResults() {
   localStorage.setItem("scores", JSON.stringify(scores));
   
   // Save to cloud if available
-  if (window.cloudManager) {
+  if (cloudManager) {
     cloudManager.saveResultToCloud(resultData).then(result => {
       console.log('☁️ Cloud save result:', result);
       if (result.success) {
@@ -311,6 +321,9 @@ function calculateAndShowResults() {
       console.error('Cloud save error:', error);
       showCloudSyncStatus('error', 'Gagal sync ke cloud, data tersimpan lokal');
     });
+  } else {
+    console.log('Cloud manager not available, data saved locally only');
+    showCloudSyncStatus('warning', 'Offline mode - data tersimpan lokal');
   }
   
   // Debug log to check if data is saved
@@ -428,10 +441,7 @@ function addSampleData() {
   }
 }
 
-// Add sample data on page load for testing
-document.addEventListener('DOMContentLoaded', function() {
-  addSampleData();
-});
+// Add sample data on page load for testing - moved to DOMContentLoaded above
 
 // Cloud sync status display
 function showCloudSyncStatus(type, message) {
