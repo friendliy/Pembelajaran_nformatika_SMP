@@ -51,5 +51,29 @@
   </div>
 
   <script src="script.js"></script>
+  <script>
+    // Check if user is logged in before allowing quiz access
+    document.addEventListener('DOMContentLoaded', function() {
+      const currentUser = getCurrentUser();
+      if (!currentUser) {
+        alert('Anda harus login terlebih dahulu untuk mengerjakan kuis!');
+        window.location.href = 'login.html';
+        return;
+      }
+      
+      // Show welcome message for logged in user
+      const welcomeMsg = document.createElement('div');
+      welcomeMsg.style.cssText = 'background: rgba(102, 126, 234, 0.1); padding: 15px; border-radius: 10px; margin-bottom: 20px; text-align: center; border: 2px solid #667eea;';
+      welcomeMsg.innerHTML = `
+        <h3 style="color: #667eea; margin: 0;">Selamat Datang, ${currentUser.fullName}!</h3>
+        <p style="margin: 5px 0; color: #4a5568;">Anda login sebagai: <strong>${currentUser.role === 'siswa' ? '👨‍🎓 Siswa' : '👨‍🏫 Guru'}</strong></p>
+      `;
+      
+      const container = document.querySelector('.container');
+      if (container && container.firstChild) {
+        container.insertBefore(welcomeMsg, container.firstChild.nextSibling);
+      }
+    });
+  </script>
 </body>
 </html>
