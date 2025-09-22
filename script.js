@@ -301,39 +301,54 @@ function addSampleData() {
   const sampleResults = [
     {
       username: "Andi Pratama",
+      userRole: "siswa",
+      userId: "andi123", 
       score: 85,
       correctAnswers: 26,
       totalQuestions: 30,
       timeElapsed: "25:30",
       date: new Date().toLocaleString('id-ID'),
-      grade: "B"
+      grade: "B",
+      detailedResults: []
     },
     {
       username: "Sari Indah",
+      userRole: "siswa",
+      userId: "sari456",
       score: 92,
       correctAnswers: 28,
       totalQuestions: 30,
       timeElapsed: "22:15",
       date: new Date().toLocaleString('id-ID'),
-      grade: "A"
+      grade: "A",
+      detailedResults: []
     },
     {
       username: "Budi Santoso",
+      userRole: "siswa",
+      userId: "budi789",
       score: 78,
       correctAnswers: 23,
       totalQuestions: 30,
       timeElapsed: "28:45",
       date: new Date().toLocaleString('id-ID'),
-      grade: "C"
+      grade: "C",
+      detailedResults: []
     }
   ];
   
   let scores = JSON.parse(localStorage.getItem("scores")) || [];
-  scores = scores.concat(sampleResults);
-  localStorage.setItem("scores", JSON.stringify(scores));
   
-  console.log('Sample data added:', sampleResults);
+  // Only add sample data if no student data exists
+  const hasStudentData = scores.some(s => s.userRole === 'siswa');
+  if (!hasStudentData) {
+    scores = scores.concat(sampleResults);
+    localStorage.setItem("scores", JSON.stringify(scores));
+    console.log('Sample student data added:', sampleResults);
+  }
 }
 
-// For debugging - uncomment the line below to add sample data
-// addSampleData();
+// Add sample data on page load for testing
+document.addEventListener('DOMContentLoaded', function() {
+  addSampleData();
+});
