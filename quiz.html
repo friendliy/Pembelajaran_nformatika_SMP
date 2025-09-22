@@ -46,8 +46,10 @@
 
   <script src="script.js"></script>
   <script>
-    // Check if user is logged in before allowing quiz access
+    // Initialize quiz after page loads
     document.addEventListener('DOMContentLoaded', function() {
+      console.log('Page loaded, initializing quiz...');
+      
       let currentUser = null;
       
       // Safely check for auth function

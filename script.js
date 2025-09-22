@@ -8,25 +8,178 @@ let timeLimit = 30 * 60; // 30 minutes in seconds
 // Initialize cloud manager when available
 let cloudManager = null;
 document.addEventListener('DOMContentLoaded', function() {
+  console.log('Script.js DOMContentLoaded fired');
+  
   if (window.CloudDataManager) {
     cloudManager = new CloudDataManager();
     console.log('🌐 Cloud manager initialized');
   }
+  
   addSampleData();
+  
+  // Start loading questions immediately
+  loadQuestions();
+  
+  // Fallback: if questions not loaded after 3 seconds, load sample questions
+  setTimeout(() => {
+    if (questions.length === 0) {
+      console.warn('Questions not loaded after 3 seconds, loading sample questions...');
+      loadSampleQuestions();
+    }
+  }, 3000);
 });
 
-// Load questions and initialize quiz
-fetch("questions.json")
-  .then(res => res.json())
-  .then(data => {
+// Load questions function
+
+async function loadQuestions() {
+  console.log('Loading questions...');
+  
+  const container = document.getElementById("quiz-container");
+  if (!container) {
+    console.error('Quiz container not found!');
+    return;
+  }
+  
+  // Show loading state
+  container.innerHTML = `
+    <div style="text-align: center; padding: 40px;">
+      <div style="font-size: 3rem; margin-bottom: 20px;">⏳</div>
+      <p style="font-size: 1.2rem; color: #666;">Memuat soal-soal quiz...</p>
+    </div>
+  `;
+  
+  try {
+    // Try fetch first
+    let data;
+    try {
+      console.log('Trying to fetch questions.json...');
+      const response = await fetch("questions.json");
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      data = await response.json();
+      console.log('Successfully loaded from questions.json:', data.length, 'questions');
+    } catch (fetchError) {
+      console.warn('Fetch failed, using sample questions:', fetchError);
+      
+      // Show fallback message and use sample questions
+      container.innerHTML = `
+        <div style="text-align: center; padding: 40px;">
+          <div style="font-size: 2rem; margin-bottom: 20px;">⚠️</div>
+          <p style="color: #856404; font-size: 1.1rem; margin-bottom: 20px;">Tidak dapat memuat file soal utama</p>
+          <p style="color: #666; margin-bottom: 20px;">Menggunakan soal sampel untuk demo</p>
+          <button onclick="loadQuestions()" style="background: #28a745; color: white; padding: 8px 16px; border: none; border-radius: 5px; cursor: pointer; margin-right: 10px;">
+            🔄 Coba Lagi
+          </button>
+          <button onclick="loadSampleQuestions()" style="background: #17a2b8; color: white; padding: 8px 16px; border: none; border-radius: 5px; cursor: pointer;">
+            📝 Lanjut dengan Soal Demo
+          </button>
+        </div>
+      `;
+      return;
+    }
+    
+    if (!data || data.length === 0) {
+      throw new Error('No questions found in the file');
+    }
+    
     questions = data;
+    console.log('Questions loaded successfully:', questions.length);
     renderQuiz();
     startTimer();
-  })
-  .catch(error => {
+    
+  } catch (error) {
     console.error('Error loading questions:', error);
-    document.getElementById("quiz-container").innerHTML = '<p style="color: red;">Error loading questions. Please refresh the page.</p>';
-  });
+    
+    // Show error state with retry option
+    container.innerHTML = `
+      <div style="text-align: center; padding: 40px;">
+        <p style="color: red; font-size: 1.2rem; margin-bottom: 15px;">❌ Error loading questions</p>
+        <p style="color: #666; margin-bottom: 20px;">Error: ${error.message}</p>
+        <button onclick="loadQuestions()" style="background: #28a745; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin-right: 10px;">
+          🔄 Try Again
+        </button>
+        <button onclick="loadSampleQuestions()" style="background: #17a2b8; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">
+          📝 Use Sample Questions
+        </button>
+      </div>
+    `;
+  }
+}
+
+function loadSampleQuestions() {
+  console.log('Loading sample questions...');
+  
+  const container = document.getElementById("quiz-container");
+  if (!container) {
+    console.error('Quiz container not found!');
+    return;
+  }
+  
+  // Show loading state
+  container.innerHTML = `
+    <div style="text-align: center; padding: 40px;">
+      <div style="font-size: 3rem; margin-bottom: 20px;">📝</div>
+      <p style="font-size: 1.2rem; color: #667eea;">Memuat soal demo...</p>
+    </div>
+  `;
+  
+  // Small delay for better UX
+  setTimeout(() => {
+    try {
+      questions = getSampleQuestions();
+      console.log('Sample questions loaded:', questions.length);
+      renderQuiz();
+      startTimer();
+    } catch (error) {
+      console.error('Error loading sample questions:', error);
+      container.innerHTML = `
+        <div style="text-align: center; padding: 40px;">
+          <p style="color: red;">❌ Error loading sample questions</p>
+        </div>
+      `;
+    }
+  }, 500);
+}
+
+function getSampleQuestions() {
+  return [
+    {
+      "id": 1,
+      "type": "multiple-choice",
+      "question": "Apa kepanjangan dari CPU?",
+      "options": ["Central Processing Unit", "Control Program Utility", "Computer Primary Unit", "Central Program Unit"],
+      "answer": "Central Processing Unit"
+    },
+    {
+      "id": 2,
+      "type": "multiple-choice",
+      "question": "Perangkat lunak sistem operasi yang dikembangkan oleh Microsoft adalah?",
+      "options": ["Linux", "Windows", "macOS", "Android"],
+      "answer": "Windows"
+    },
+    {
+      "id": 3,
+      "type": "multiple-choice",
+      "question": "Bahasa pemrograman yang dikembangkan oleh Google untuk aplikasi Android adalah?",
+      "options": ["Java", "Python", "Kotlin", "JavaScript"],
+      "answer": "Kotlin"
+    },
+    {
+      "id": 4,
+      "type": "short-answer",
+      "question": "Sebutkan nama browser web yang dikembangkan oleh Google!",
+      "answer": "Chrome"
+    },
+    {
+      "id": 5,
+      "type": "multiple-choice",
+      "question": "Protokol yang digunakan untuk transfer file di internet adalah?",
+      "options": ["HTTP", "FTP", "SMTP", "POP3"],
+      "answer": "FTP"
+    }
+  ];
+}
 
 function startTimer() {
   quizStartTime = Date.now();
