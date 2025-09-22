@@ -12,22 +12,34 @@ let cloudManager = null;
 (function() {
   console.log('Script.js initializing...');
   
+  // Wait for DOM to be ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeQuiz);
+  } else {
+    // DOM already loaded
+    initializeQuiz();
+  }
+})();
+
+function initializeQuiz() {
+  console.log('Initializing quiz system...');
+  
   if (window.CloudDataManager) {
     cloudManager = new CloudDataManager();
     console.log('🌐 Cloud manager initialized');
   }
   
-  // Load questions immediately
-  setTimeout(function() {
-    console.log('Auto-loading sample questions...');
-    loadSampleQuestions();
-  }, 500);
-})();
-
-document.addEventListener('DOMContentLoaded', function() {
-  console.log('DOMContentLoaded - adding sample data');
   addSampleData();
-});
+  
+  // Auto-load sample questions after a delay
+  setTimeout(function() {
+    console.log('Auto-loading quiz...');
+    const container = document.getElementById("quiz-container");
+    if (container && questions.length === 0) {
+      loadSampleQuestions();
+    }
+  }, 1000);
+}
 
 // Load questions function
 
@@ -108,33 +120,46 @@ async function loadQuestions() {
 }
 
 function loadSampleQuestions() {
-  console.log('Loading sample questions...');
+  console.log('=== Loading sample questions ===');
   
   const container = document.getElementById("quiz-container");
   if (!container) {
-    console.error('Quiz container not found! Waiting for DOM...');
-    setTimeout(loadSampleQuestions, 500);
+    console.error('Quiz container not found! Retrying in 1 second...');
+    setTimeout(loadSampleQuestions, 1000);
     return;
   }
   
+  // Show loading state
+  container.innerHTML = `
+    <div style="text-align: center; padding: 40px;">
+      <div style="font-size: 3rem; margin-bottom: 20px;">📝</div>
+      <p style="font-size: 1.2rem; color: #667eea;">Memuat soal demo...</p>
+    </div>
+  `;
+  
   try {
     questions = getSampleQuestions();
-    console.log('Sample questions loaded:', questions.length);
+    console.log('Sample questions loaded:', questions.length, 'questions');
     
     if (questions.length > 0) {
-      renderQuiz();
-      startTimer();
-      console.log('Quiz rendered successfully!');
+      setTimeout(() => {
+        renderQuiz();
+        startTimer();
+        console.log('✅ Quiz rendered and timer started!');
+      }, 500);
     } else {
       throw new Error('No sample questions available');
     }
   } catch (error) {
-    console.error('Error loading sample questions:', error);
+    console.error('❌ Error loading sample questions:', error);
     container.innerHTML = `
       <div style="text-align: center; padding: 40px;">
-        <p style="color: red; font-size: 1.2rem;">❌ Error: ${error.message}</p>
-        <button onclick="location.reload()" style="background: #28a745; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">
-          🔄 Refresh Page
+        <p style="color: red; font-size: 1.2rem; margin-bottom: 15px;">❌ Error: ${error.message}</p>
+        <button onclick="loadSampleQuestions()" style="background: #dc3545; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin: 5px;">
+          🔄 Coba Lagi
+        </button>
+        <button onclick="location.reload()" style="background: #28a745; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin: 5px;">
+          🔄 Refresh Halaman
         </button>
       </div>
     `;
@@ -142,7 +167,8 @@ function loadSampleQuestions() {
 }
 
 function getSampleQuestions() {
-  return [
+  console.log('Getting sample questions...');
+  const sampleQuestions = [
     {
       "id": 1,
       "type": "multiple-choice",
@@ -178,6 +204,23 @@ function getSampleQuestions() {
       "answer": "FTP"
     }
   ];
+  
+  console.log('Sample questions created:', sampleQuestions.length);
+  return sampleQuestions;
+}
+
+// Debug function to check system status
+function debugQuizSystem() {
+  console.log('=== QUIZ SYSTEM DEBUG ===');
+  console.log('Questions loaded:', questions.length);
+  console.log('Quiz container exists:', !!document.getElementById("quiz-container"));
+  console.log('Progress container exists:', !!document.getElementById("progress-container"));
+  console.log('Timer element exists:', !!document.getElementById("timer"));
+  console.log('Submit button exists:', !!document.getElementById("submit-btn"));
+  console.log('Result container exists:', !!document.getElementById("result"));
+  console.log('Document ready state:', document.readyState);
+  console.log('Current questions:', questions);
+  return 'Debug info logged to console';
 }
 
 function startTimer() {
@@ -314,7 +357,7 @@ function updateProgress() {
 }
 
 function testSubmit() {
-  console.log('=== TEST SUBMIT ===');
+  console.log('=== TEST SUBMIT CALLED ===');
   console.log('Questions:', questions);
   console.log('User Answers:', userAnswers);
   console.log('Submit button exists:', !!document.getElementById('submit-btn'));
@@ -322,7 +365,8 @@ function testSubmit() {
   
   // Add a test answer if none exist
   if (Object.keys(userAnswers).length === 0 && questions.length > 0) {
-    userAnswers[questions[0].id] = questions[0].type === 'multiple-choice' ? 'A' : 'test';
+    const firstQuestion = questions[0];
+    userAnswers[firstQuestion.id] = firstQuestion.type === 'multiple-choice' ? firstQuestion.options[0] : 'test answer';
     console.log('Added test answer:', userAnswers);
   }
   

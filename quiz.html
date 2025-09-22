@@ -24,12 +24,29 @@
         <div style="text-align: center; padding: 40px;">
           <div style="font-size: 3rem; margin-bottom: 20px;">⏳</div>
           <p style="font-size: 1.2rem; color: #666; margin-bottom: 20px;">Memuat soal-soal quiz...</p>
-          <button onclick="loadSampleQuestions()" style="background: #17a2b8; color: white; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-size: 1rem; margin: 5px;">
-            📝 Mulai Quiz Demo
-          </button>
-          <button onclick="loadQuestions()" style="background: #28a745; color: white; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-size: 1rem; margin: 5px;">
-            📚 Muat Soal Lengkap
-          </button>
+          <div style="margin: 20px 0;">
+            <button onclick="loadSampleQuestions()" style="background: #17a2b8; color: white; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-size: 1rem; margin: 5px;">
+              📝 Mulai Quiz Demo
+            </button>
+            <button onclick="loadQuestions()" style="background: #28a745; color: white; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-size: 1rem; margin: 5px;">
+              📚 Muat Soal Lengkap
+            </button>
+          </div>
+          <div style="margin-top: 20px;">
+            <button onclick="debugQuizSystem()" style="background: #6c757d; color: white; padding: 8px 16px; border: none; border-radius: 5px; cursor: pointer; font-size: 0.9rem; margin: 2px;">
+              🔍 Debug Info
+            </button>
+            <button onclick="console.clear(); console.log('Console cleared')" style="background: #dc3545; color: white; padding: 8px 16px; border: none; border-radius: 5px; cursor: pointer; font-size: 0.9rem; margin: 2px;">
+              🗑️ Clear Console
+            </button>
+          </div>
+          <div style="margin-top: 20px; padding: 15px; background: rgba(255,193,7,0.1); border-radius: 8px; font-size: 0.9rem; color: #856404;">
+            <strong>📋 Panduan Troubleshooting:</strong><br>
+            1. Klik "Mulai Quiz Demo" untuk memulai<br>
+            2. Jika tidak berfungsi, tekan F12 → Console<br>
+            3. Klik "Debug Info" untuk cek status sistem<br>
+            4. Refresh halaman jika masih bermasalah
+          </div>
         </div>
       </div>
       
