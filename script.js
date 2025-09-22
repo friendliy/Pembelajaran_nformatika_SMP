@@ -7,26 +7,26 @@ let timeLimit = 30 * 60; // 30 minutes in seconds
 
 // Initialize cloud manager when available
 let cloudManager = null;
-document.addEventListener('DOMContentLoaded', function() {
-  console.log('Script.js DOMContentLoaded fired');
+
+// Initialize immediately when script loads
+(function() {
+  console.log('Script.js initializing...');
   
   if (window.CloudDataManager) {
     cloudManager = new CloudDataManager();
     console.log('🌐 Cloud manager initialized');
   }
   
+  // Load questions immediately
+  setTimeout(function() {
+    console.log('Auto-loading sample questions...');
+    loadSampleQuestions();
+  }, 500);
+})();
+
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('DOMContentLoaded - adding sample data');
   addSampleData();
-  
-  // Start loading questions immediately
-  loadQuestions();
-  
-  // Fallback: if questions not loaded after 3 seconds, load sample questions
-  setTimeout(() => {
-    if (questions.length === 0) {
-      console.warn('Questions not loaded after 3 seconds, loading sample questions...');
-      loadSampleQuestions();
-    }
-  }, 3000);
 });
 
 // Load questions function
@@ -112,34 +112,33 @@ function loadSampleQuestions() {
   
   const container = document.getElementById("quiz-container");
   if (!container) {
-    console.error('Quiz container not found!');
+    console.error('Quiz container not found! Waiting for DOM...');
+    setTimeout(loadSampleQuestions, 500);
     return;
   }
   
-  // Show loading state
-  container.innerHTML = `
-    <div style="text-align: center; padding: 40px;">
-      <div style="font-size: 3rem; margin-bottom: 20px;">📝</div>
-      <p style="font-size: 1.2rem; color: #667eea;">Memuat soal demo...</p>
-    </div>
-  `;
-  
-  // Small delay for better UX
-  setTimeout(() => {
-    try {
-      questions = getSampleQuestions();
-      console.log('Sample questions loaded:', questions.length);
+  try {
+    questions = getSampleQuestions();
+    console.log('Sample questions loaded:', questions.length);
+    
+    if (questions.length > 0) {
       renderQuiz();
       startTimer();
-    } catch (error) {
-      console.error('Error loading sample questions:', error);
-      container.innerHTML = `
-        <div style="text-align: center; padding: 40px;">
-          <p style="color: red;">❌ Error loading sample questions</p>
-        </div>
-      `;
+      console.log('Quiz rendered successfully!');
+    } else {
+      throw new Error('No sample questions available');
     }
-  }, 500);
+  } catch (error) {
+    console.error('Error loading sample questions:', error);
+    container.innerHTML = `
+      <div style="text-align: center; padding: 40px;">
+        <p style="color: red; font-size: 1.2rem;">❌ Error: ${error.message}</p>
+        <button onclick="location.reload()" style="background: #28a745; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">
+          🔄 Refresh Page
+        </button>
+      </div>
+    `;
+  }
 }
 
 function getSampleQuestions() {
@@ -202,8 +201,33 @@ function startTimer() {
 }
 
 function renderQuiz() {
+  console.log('Rendering quiz...');
+  
   const container = document.getElementById("quiz-container");
   const progressContainer = document.getElementById("progress-container");
+  
+  if (!container) {
+    console.error('Quiz container not found!');
+    return;
+  }
+  
+  if (!progressContainer) {
+    console.error('Progress container not found!');
+    return;
+  }
+  
+  if (!questions || questions.length === 0) {
+    console.error('No questions to render!');
+    container.innerHTML = `
+      <div style="text-align: center; padding: 40px;">
+        <p style="color: red;">❌ Tidak ada soal untuk ditampilkan</p>
+        <button onclick="loadSampleQuestions()" style="background: #17a2b8; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">
+          📝 Muat Soal Demo
+        </button>
+      </div>
+    `;
+    return;
+  }
   
   // Create progress bar
   progressContainer.innerHTML = `
@@ -235,7 +259,9 @@ function renderQuiz() {
   });
   
   container.innerHTML = html;
+  console.log('Quiz HTML rendered, updating progress...');
   updateProgress();
+  console.log('Quiz rendering complete!');
 }
 
 function updateProgress() {
