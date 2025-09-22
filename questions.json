@@ -1,0 +1,210 @@
+[
+  {
+    "id": 1,
+    "type": "multiple-choice",
+    "question": "Apa kepanjangan dari CPU?",
+    "options": ["Central Processing Unit", "Control Program Utility", "Computer Primary Unit", "Central Program Unit"],
+    "answer": "Central Processing Unit"
+  },
+  {
+    "id": 2,
+    "type": "multiple-choice",
+    "question": "Manakah yang termasuk perangkat input?",
+    "options": ["Monitor", "Keyboard", "Speaker", "Printer"],
+    "answer": "Keyboard"
+  },
+  {
+    "id": 3,
+    "type": "multiple-choice",
+    "question": "Apa fungsi utama RAM dalam komputer?",
+    "options": ["Menyimpan data permanen", "Menyimpan data sementara saat komputer bekerja", "Menampilkan gambar", "Mengatur suara"],
+    "answer": "Menyimpan data sementara saat komputer bekerja"
+  },
+  {
+    "id": 4,
+    "type": "multiple-choice",
+    "question": "Algoritma adalah...",
+    "options": ["Program komputer", "Urutan langkah logis untuk menyelesaikan masalah", "Bahasa pemrograman", "Perangkat keras komputer"],
+    "answer": "Urutan langkah logis untuk menyelesaikan masalah"
+  },
+  {
+    "id": 5,
+    "type": "multiple-choice",
+    "question": "Manakah yang bukan termasuk perangkat output?",
+    "options": ["Monitor", "Mouse", "Speaker", "Printer"],
+    "answer": "Mouse"
+  },
+  {
+    "id": 6,
+    "type": "multiple-choice",
+    "question": "Apa kepanjangan dari WWW?",
+    "options": ["World Wide Web", "World Web Window", "Wide World Web", "Web World Wide"],
+    "answer": "World Wide Web"
+  },
+  {
+    "id": 7,
+    "type": "multiple-choice",
+    "question": "Manakah yang termasuk software sistem operasi?",
+    "options": ["Microsoft Word", "Windows", "Adobe Photoshop", "Google Chrome"],
+    "answer": "Windows"
+  },
+  {
+    "id": 8,
+    "type": "multiple-choice",
+    "question": "Apa fungsi firewall dalam jaringan komputer?",
+    "options": ["Mempercepat koneksi internet", "Melindungi komputer dari serangan", "Menyimpan data", "Menampilkan gambar"],
+    "answer": "Melindungi komputer dari serangan"
+  },
+  {
+    "id": 9,
+    "type": "multiple-choice",
+    "question": "Satuan terkecil dari data dalam komputer adalah...",
+    "options": ["Byte", "Bit", "Kilobyte", "Megabyte"],
+    "answer": "Bit"
+  },
+  {
+    "id": 10,
+    "type": "multiple-choice",
+    "question": "Apa yang dimaksud dengan phishing?",
+    "options": ["Bermain game online", "Penipuan untuk mencuri data pribadi", "Mengirim email", "Mengunduh file"],
+    "answer": "Penipuan untuk mencuri data pribadi"
+  },
+  {
+    "id": 11,
+    "type": "multiple-choice",
+    "question": "Manakah yang termasuk media penyimpanan eksternal?",
+    "options": ["RAM", "ROM", "Flash Drive", "Cache"],
+    "answer": "Flash Drive"
+  },
+  {
+    "id": 12,
+    "type": "multiple-choice",
+    "question": "Apa fungsi dari browser web?",
+    "options": ["Mengedit dokumen", "Mengakses dan menampilkan halaman web", "Bermain musik", "Mengedit foto"],
+    "answer": "Mengakses dan menampilkan halaman web"
+  },
+  {
+    "id": 13,
+    "type": "multiple-choice",
+    "question": "Protokol yang digunakan untuk mengirim email adalah...",
+    "options": ["HTTP", "FTP", "SMTP", "TCP"],
+    "answer": "SMTP"
+  },
+  {
+    "id": 14,
+    "type": "multiple-choice",
+    "question": "Apa yang dimaksud dengan cyber bullying?",
+    "options": ["Bermain game online", "Perundungan yang dilakukan melalui media digital", "Belajar online", "Berbelanja online"],
+    "answer": "Perundungan yang dilakukan melalui media digital"
+  },
+  {
+    "id": 15,
+    "type": "multiple-choice",
+    "question": "Manakah yang termasuk bahasa pemrograman?",
+    "options": ["HTML", "Python", "CSS", "Semua benar"],
+    "answer": "Semua benar"
+  },
+  {
+    "id": 16,
+    "type": "multiple-choice",
+    "question": "Apa kepanjangan dari URL?",
+    "options": ["Universal Resource Locator", "Uniform Resource Locator", "United Resource Locator", "Universal Reference Locator"],
+    "answer": "Uniform Resource Locator"
+  },
+  {
+    "id": 17,
+    "type": "multiple-choice",
+    "question": "Fungsi utama motherboard adalah...",
+    "options": ["Menyimpan data", "Menghubungkan semua komponen komputer", "Menampilkan gambar", "Mengatur suara"],
+    "answer": "Menghubungkan semua komponen komputer"
+  },
+  {
+    "id": 18,
+    "type": "multiple-choice",
+    "question": "Apa yang dimaksud dengan cloud computing?",
+    "options": ["Bermain game di awan", "Layanan komputasi melalui internet", "Menyimpan data di komputer lokal", "Mengedit foto"],
+    "answer": "Layanan komputasi melalui internet"
+  },
+  {
+    "id": 19,
+    "type": "multiple-choice",
+    "question": "Manakah yang termasuk etika digital yang baik?",
+    "options": ["Menyebarkan hoax", "Menghormati privasi orang lain", "Melakukan cyberbullying", "Membajak software"],
+    "answer": "Menghormati privasi orang lain"
+  },
+  {
+    "id": 20,
+    "type": "multiple-choice",
+    "question": "Apa fungsi dari antivirus?",
+    "options": ["Mempercepat komputer", "Melindungi komputer dari virus", "Mengedit dokumen", "Bermain musik"],
+    "answer": "Melindungi komputer dari virus"
+  },
+  {
+    "id": 21,
+    "type": "short-answer",
+    "question": "Sebutkan 3 contoh search engine yang populer!",
+    "answer": "google"
+  },
+  {
+    "id": 22,
+    "type": "multiple-choice",
+    "question": "Apa yang dimaksud dengan backup data?",
+    "options": ["Menghapus data", "Menyalin data untuk keamanan", "Mengedit data", "Memindahkan data"],
+    "answer": "Menyalin data untuk keamanan"
+  },
+  {
+    "id": 23,
+    "type": "multiple-choice",
+    "question": "Manakah yang termasuk jenis jaringan berdasarkan jangkauan?",
+    "options": ["LAN", "WAN", "MAN", "Semua benar"],
+    "answer": "Semua benar"
+  },
+  {
+    "id": 24,
+    "type": "multiple-choice",
+    "question": "Apa kepanjangan dari HTML?",
+    "options": ["Hyper Text Markup Language", "High Tech Modern Language", "Home Tool Markup Language", "Hyper Transfer Markup Language"],
+    "answer": "Hyper Text Markup Language"
+  },
+  {
+    "id": 25,
+    "type": "multiple-choice",
+    "question": "Fungsi utama dari GPS adalah...",
+    "options": ["Bermain game", "Menentukan lokasi geografis", "Mengedit foto", "Memutar musik"],
+    "answer": "Menentukan lokasi geografis"
+  },
+  {
+    "id": 26,
+    "type": "short-answer",
+    "question": "Apa singkatan dari AI dalam teknologi?",
+    "answer": "artificial intelligence"
+  },
+  {
+    "id": 27,
+    "type": "multiple-choice",
+    "question": "Manakah yang termasuk social media?",
+    "options": ["Instagram", "Facebook", "Twitter", "Semua benar"],
+    "answer": "Semua benar"
+  },
+  {
+    "id": 28,
+    "type": "multiple-choice",
+    "question": "Apa yang dimaksud dengan cookie dalam browser?",
+    "options": ["Makanan kecil", "File kecil yang menyimpan informasi pengguna", "Program antivirus", "Jenis browser"],
+    "answer": "File kecil yang menyimpan informasi pengguna"
+  },
+  {
+    "id": 29,
+    "type": "multiple-choice",
+    "question": "Satuan kecepatan internet biasanya dinyatakan dalam...",
+    "options": ["Mbps", "MHz", "GB", "TB"],
+    "answer": "Mbps"
+  },
+  {
+    "id": 30,
+    "type": "multiple-choice",
+    "question": "Apa yang sebaiknya dilakukan untuk membuat password yang kuat?",
+    "options": ["Menggunakan nama sendiri", "Kombinasi huruf, angka, dan simbol", "Menggunakan tanggal lahir", "Menggunakan kata yang mudah diingat"],
+    "answer": "Kombinasi huruf, angka, dan simbol"
+  }
+]

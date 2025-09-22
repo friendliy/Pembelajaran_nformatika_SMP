@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registrasi - Pembelajaran Informatika SMP</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <div class="auth-container">
+      <div class="auth-card">
+        <div style="text-align: center; margin-bottom: 30px;">
+          <div style="font-size: 4rem; margin-bottom: 20px;">📝</div>
+          <h1 style="color: #667eea; margin-bottom: 10px;">Buat Akun Baru</h1>
+          <p style="color: #4a5568;">Daftar untuk mengakses materi pembelajaran</p>
+        </div>
+
+        <form id="registerForm" onsubmit="handleRegister(event)">
+          <div class="form-group">
+            <label for="fullName">👤 Nama Lengkap</label>
+            <input type="text" id="fullName" name="fullName" required placeholder="Masukkan nama lengkap">
+          </div>
+
+          <div class="form-group">
+            <label for="email">📧 Email</label>
+            <input type="email" id="email" name="email" required placeholder="Masukkan email">
+          </div>
+
+          <div class="form-group">
+            <label for="username">🆔 Username</label>
+            <input type="text" id="username" name="username" required placeholder="Masukkan username">
+          </div>
+
+          <div class="form-group">
+            <label for="password">🔒 Password</label>
+            <input type="password" id="password" name="password" required placeholder="Minimal 6 karakter">
+          </div>
+
+          <div class="form-group">
+            <label for="confirmPassword">🔒 Konfirmasi Password</label>
+            <input type="password" id="confirmPassword" name="confirmPassword" required placeholder="Ulangi password">
+          </div>
+
+          <div class="form-group">
+            <label>👥 Daftar Sebagai</label>
+            <div class="role-group">
+              <div class="role-option">
+                <input type="radio" id="siswa-reg" name="role" value="siswa" required>
+                <label for="siswa-reg">👨‍🎓 Siswa</label>
+              </div>
+              <div class="role-option">
+                <input type="radio" id="guru-reg" name="role" value="guru" required>
+                <label for="guru-reg">👨‍🏫 Guru</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group" id="teacherCodeGroup" style="display: none;">
+            <label for="teacherCode">🔑 Kode Guru</label>
+            <input type="text" id="teacherCode" name="teacherCode" placeholder="Masukkan kode khusus guru">
+            <small style="color: #666;">Kode khusus untuk pendaftaran guru: <strong>GURU2025</strong></small>
+          </div>
+
+          <button type="submit" class="submit-btn">📝 Daftar</button>
+          
+          <div id="registerMessage" class="message"></div>
+        </form>
+
+        <div class="auth-links">
+          <p>Sudah punya akun? <a href="login.html">🔐 Masuk di sini</a></p>
+          <p><a href="index.html">🏠 Kembali ke Beranda</a></p>
+        </div>
+
+        <div id="registerMessage" class="message"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="auth.js"></script>
+  <script>
+    // Show/hide teacher code field based on role selection
+    document.addEventListener('DOMContentLoaded', function() {
+      const roleInputs = document.querySelectorAll('input[name="role"]');
+      const teacherCodeGroup = document.getElementById('teacherCodeGroup');
+      const teacherCodeInput = document.getElementById('teacherCode');
+      
+      roleInputs.forEach(input => {
+        input.addEventListener('change', function() {
+          if (this.value === 'guru') {
+            teacherCodeGroup.style.display = 'block';
+            teacherCodeInput.required = true;
+          } else {
+            teacherCodeGroup.style.display = 'none';
+            teacherCodeInput.required = false;
+            teacherCodeInput.value = '';
+          }
+        });
+      });
+    });
+
+    // Initialize register form
+    document.addEventListener('DOMContentLoaded', function() {
+      const registerForm = document.getElementById('registerForm');
+      if (registerForm) {
+        registerForm.addEventListener('submit', handleRegister);
+      }
+    });
+  </script>
+</body>
+</html>

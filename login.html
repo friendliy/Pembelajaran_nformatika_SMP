@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - Pembelajaran Informatika SMP</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <div class="auth-container">
+      <div class="auth-card">
+        <div style="text-align: center; margin-bottom: 30px;">
+          <div style="font-size: 4rem; margin-bottom: 20px;">🔐</div>
+          <h1 style="color: #667eea; margin-bottom: 10px;">Masuk ke Akun</h1>
+          <p style="color: #4a5568;">Silakan masuk dengan akun Anda</p>
+        </div>
+
+        <form id="loginForm" onsubmit="handleLogin(event)">
+          <div class="form-group">
+            <label for="username">👤 Username/Email</label>
+            <input type="text" id="username" name="username" required placeholder="Masukkan username atau email">
+          </div>
+
+          <div class="form-group">
+            <label for="password">🔒 Password</label>
+            <input type="password" id="password" name="password" required placeholder="Masukkan password">
+          </div>
+
+          <div class="form-group">
+            <label>👥 Masuk Sebagai</label>
+            <div class="role-group">
+              <div class="role-option">
+                <input type="radio" id="siswa" name="role" value="siswa" required>
+                <label for="siswa">👨‍🎓 Siswa</label>
+              </div>
+              <div class="role-option">
+                <input type="radio" id="guru" name="role" value="guru" required>
+                <label for="guru">👨‍🏫 Guru</label>
+              </div>
+            </div>
+          </div>
+
+          <button type="submit" class="submit-btn">🚪 Masuk</button>
+          
+          <div id="loginMessage" class="message"></div>
+        </form>
+
+        <div class="auth-links">
+          <p>Belum punya akun? <a href="register.html">📝 Daftar di sini</a></p>
+          <p><a href="index.html">🏠 Kembali ke Beranda</a></p>
+        </div>
+
+        <div id="loginMessage" class="message"></div>
+
+        <!-- Demo Accounts Info -->
+        <div class="demo-accounts">
+          <h4 style="color: #667eea; margin-bottom: 15px;">🎯 Akun Demo untuk Testing</h4>
+          <div class="demo-account">
+            <strong>👨‍🏫 Guru:</strong><br>
+            Username: <code>guru</code><br>
+            Password: <code>guru123</code>
+          </div>
+          <div class="demo-account">
+            <strong>👨‍🎓 Siswa:</strong><br>
+            Username: <code>siswa</code><br>
+            Password: <code>siswa123</code>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="auth.js"></script>
+  <script>
+    // Initialize login form
+    document.addEventListener('DOMContentLoaded', function() {
+      const loginForm = document.getElementById('loginForm');
+      if (loginForm) {
+        loginForm.addEventListener('submit', handleLogin);
+      }
+    });
+  </script>
+</body>
+</html>

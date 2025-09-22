@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Guru - Pembelajaran Informatika SMP</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="auth.js"></script>
+</head>
+<body> html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Guru - Informatika SMP</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>📊 Dashboard Guru</h1>
+    
+    <div class="content-card">
+      <h2 style="color: #667eea; text-align: center; margin-bottom: 30px;">📈 Hasil Tryout Siswa</h2>
+      
+      <!-- Statistics Overview -->
+      <div id="stats-overview" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin: 30px 0;">
+        <!-- Stats will be populated by JavaScript -->
+      </div>
+      
+      <!-- Detailed Results Table -->
+      <div style="overflow-x: auto; margin: 30px 0;">
+        <table id="scoreTable" style="width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+          <thead>
+            <tr style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+              <th style="padding: 15px; text-align: left; font-weight: 600;">👤 Nama Siswa</th>
+              <th style="padding: 15px; text-align: center; font-weight: 600;">📊 Nilai</th>
+              <th style="padding: 15px; text-align: center; font-weight: 600;">✅ Benar</th>
+              <th style="padding: 15px; text-align: center; font-weight: 600;">⏰ Waktu</th>
+              <th style="padding: 15px; text-align: center; font-weight: 600;">📅 Tanggal</th>
+              <th style="padding: 15px; text-align: center; font-weight: 600;">🎯 Grade</th>
+            </tr>
+          </thead>
+          <tbody id="scoreTableBody">
+            <!-- Results will be populated by JavaScript -->
+          </tbody>
+        </table>
+      </div>
+      
+      <!-- Actions -->
+      <div style="text-align: center; margin: 30px 0;">
+        <button onclick="exportResults()" style="background: #28a745; margin: 10px;">📥 Export Data</button>
+        <button onclick="clearResults()" style="background: #dc3545; margin: 10px;">🗑️ Hapus Semua Data</button>
+        <button onclick="refreshData()" style="background: #17a2b8; margin: 10px;">🔄 Refresh</button>
+      </div>
+    </div>
+    
+    <!-- Navigation -->
+    <div class="nav-links">
+      <a href="index.html">🏠 Kembali ke Beranda</a>
+      <a href="quiz.html">📝 Tryout CBT</a>
+    </div>
+  </div>
+
+  <script>
+    function loadDashboard() {
+      const scores = JSON.parse(localStorage.getItem("scores")) || [];
+      const tableBody = document.getElementById("scoreTableBody");
+      const statsOverview = document.getElementById("stats-overview");
+      
+      // Clear existing content
+      tableBody.innerHTML = '';
+      
+      if (scores.length === 0) {
+        tableBody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 40px; color: #666; font-style: italic;">Belum ada data hasil tryout</td></tr>';
+        statsOverview.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #666; font-style: italic;">Belum ada data untuk ditampilkan</div>';
+        return;
+      }
+      
+      // Calculate statistics
+      const totalStudents = scores.length;
+      const totalScore = scores.reduce((sum, s) => sum + (parseInt(s.score) || 0), 0);
+      const averageScore = (totalScore / totalStudents).toFixed(1);
+      const highestScore = Math.max(...scores.map(s => parseInt(s.score) || 0));
+      const passedStudents = scores.filter(s => (parseInt(s.score) || 0) >= 70).length;
+      
+      // Update statistics overview
+      statsOverview.innerHTML = `
+        <div style="background: white; padding: 20px; border-radius: 15px; text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+          <div style="font-size: 2rem; color: #667eea; margin-bottom: 10px;">👥</div>
+          <h3 style="margin: 0; color: #667eea;">Total Siswa</h3>
+          <p style="font-size: 2rem; font-weight: bold; margin: 5px 0; color: #333;">${totalStudents}</p>
+        </div>
+        <div style="background: white; padding: 20px; border-radius: 15px; text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+          <div style="font-size: 2rem; color: #28a745; margin-bottom: 10px;">📊</div>
+          <h3 style="margin: 0; color: #28a745;">Rata-rata</h3>
+          <p style="font-size: 2rem; font-weight: bold; margin: 5px 0; color: #333;">${averageScore}</p>
+        </div>
+        <div style="background: white; padding: 20px; border-radius: 15px; text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+          <div style="font-size: 2rem; color: #ffc107; margin-bottom: 10px;">🏆</div>
+          <h3 style="margin: 0; color: #ffc107;">Tertinggi</h3>
+          <p style="font-size: 2rem; font-weight: bold; margin: 5px 0; color: #333;">${highestScore}</p>
+        </div>
+        <div style="background: white; padding: 20px; border-radius: 15px; text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+          <div style="font-size: 2rem; color: #17a2b8; margin-bottom: 10px;">✅</div>
+          <h3 style="margin: 0; color: #17a2b8;">Lulus</h3>
+          <p style="font-size: 2rem; font-weight: bold; margin: 5px 0; color: #333;">${passedStudents}/${totalStudents}</p>
+        </div>
+      `;
+      
+      // Populate table
+      scores.forEach((s, index) => {
+        const score = parseInt(s.score) || 0;
+        let grade = s.grade || '';
+        let gradeColor = '';
+        
+        // Determine grade if not provided
+        if (!grade) {
+          if (score >= 90) { grade = 'A'; }
+          else if (score >= 80) { grade = 'B'; }
+          else if (score >= 70) { grade = 'C'; }
+          else if (score >= 60) { grade = 'D'; }
+          else { grade = 'E'; }
+        }
+        
+        // Set grade color
+        if (grade === 'A') gradeColor = '#28a745';
+        else if (grade === 'B') gradeColor = '#17a2b8';
+        else if (grade === 'C') gradeColor = '#ffc107';
+        else if (grade === 'D') gradeColor = '#fd7e14';
+        else gradeColor = '#dc3545';
+        
+        const row = document.createElement("tr");
+        row.style.borderBottom = "1px solid #e9ecef";
+        row.innerHTML = `
+          <td style="padding: 15px; font-weight: 500; color: #1a202c;">${s.username || 'Unknown'}</td>
+          <td style="padding: 15px; text-align: center; font-weight: bold; color: ${gradeColor}; font-size: 1.2rem;">${score}</td>
+          <td style="padding: 15px; text-align: center; color: #1a202c;">${s.correctAnswers || 0}/${s.totalQuestions || 30}</td>
+          <td style="padding: 15px; text-align: center; font-family: monospace; color: #1a202c;">${s.timeElapsed || 'N/A'}</td>
+          <td style="padding: 15px; text-align: center; font-size: 0.9rem; color: #1a202c;">${s.date || 'Unknown'}</td>
+          <td style="padding: 15px; text-align: center; font-weight: bold; color: ${gradeColor}; font-size: 1.3rem;">${grade}</td>
+        `;
+        
+        // Add hover effect
+        row.addEventListener('mouseenter', function() {
+          this.style.backgroundColor = '#f8f9fa';
+        });
+        row.addEventListener('mouseleave', function() {
+          this.style.backgroundColor = '';
+        });
+        
+        tableBody.appendChild(row);
+      });
+    }
+    
+    function exportResults() {
+      const scores = JSON.parse(localStorage.getItem("scores")) || [];
+      if (scores.length === 0) {
+        alert('Tidak ada data untuk di-export!');
+        return;
+      }
+      
+      let csvContent = "Nama Siswa,Nilai,Jawaban Benar,Total Soal,Waktu,Tanggal,Grade\\n";
+      
+      scores.forEach(s => {
+        const score = s.score || 0;
+        let grade = '';
+        if (score >= 90) grade = 'A';
+        else if (score >= 80) grade = 'B';
+        else if (score >= 70) grade = 'C';
+        else if (score >= 60) grade = 'D';
+        else grade = 'E';
+        
+        csvContent += `"${s.username || 'Unknown'}",${score},${s.correctAnswers || 0},${s.totalQuestions || 30},"${s.timeElapsed || 'N/A'}","${s.date || 'Unknown'}",${grade}\\n`;
+      });
+      
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement("a");
+      const url = URL.createObjectURL(blob);
+      link.setAttribute("href", url);
+      link.setAttribute("download", `hasil_tryout_informatika_${new Date().toISOString().split('T')[0]}.csv`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      alert('Data berhasil di-export!');
+    }
+    
+    function clearResults() {
+      if (confirm('Apakah Anda yakin ingin menghapus SEMUA data hasil tryout?\\n\\nPeringatan: Tindakan ini tidak dapat dibatalkan!')) {
+        if (confirm('Konfirmasi sekali lagi - Hapus semua data?')) {
+          localStorage.removeItem("scores");
+          loadDashboard();
+          alert('Semua data berhasil dihapus!');
+        }
+      }
+    }
+    
+    function refreshData() {
+      loadDashboard();
+      alert('Data telah di-refresh!');
+    }
+    
+    // Load dashboard when page loads
+    document.addEventListener('DOMContentLoaded', loadDashboard);
+  </script>
+</body>
+</html>
