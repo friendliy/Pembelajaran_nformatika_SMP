@@ -148,7 +148,16 @@ function calculateAndShowResults() {
   let correctAnswers = 0;
   let detailedResults = [];
   
-  const username = prompt("Masukkan Nama Siswa:") || "Siswa";
+  // Get current user info instead of prompting
+  const currentUser = getCurrentUser();
+  let studentName = 'Anonymous';
+  
+  if (currentUser) {
+    studentName = currentUser.fullName;
+  } else {
+    // If no user logged in, prompt for name
+    studentName = prompt("Masukkan Nama Siswa:") || "Siswa";
+  }
   
   questions.forEach((q, index) => {
     const userAnswer = userAnswers[q.id];
@@ -220,10 +229,16 @@ function calculateAndShowResults() {
     <button onclick="resetQuiz()" style="background: #28a745; margin: 10px 5px;">🔄 Ulangi Quiz</button>
   `;
   
-  // Store results with all necessary data
+  // Store results with all necessary data - Get current user info
+  const loggedInUser = getCurrentUser();
+  const username = loggedInUser ? loggedInUser.fullName : studentName;
+  const userRole = loggedInUser ? loggedInUser.role : 'guest';
+  
   let scores = JSON.parse(localStorage.getItem("scores")) || [];
   scores.push({ 
-    username: username, 
+    username: username,
+    userRole: userRole,
+    userId: loggedInUser ? loggedInUser.username : 'anonymous_' + Date.now(),
     score: finalScore, 
     correctAnswers: correctAnswers, 
     totalQuestions: questions.length,

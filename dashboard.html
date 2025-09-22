@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Guru - Pembelajaran Informatika SMP</title>
+    <title>Dashboard Guru - Pembelajaran Informatika SMP        csvContent += `"${s.username || 'Unknown'}","${s.userRole || 'guest'}",${score},"${s.correctAnswers || 0}/${s.totalQuestions || 30}","${s.timeElapsed || 'N/A'}","${s.date || 'Unknown'}","${grade}"\\n`;/title>
     <link rel="stylesheet" href="style.css">
     <script src="auth.js"></script>
 </head>
@@ -64,24 +64,35 @@
   <script>
     function loadDashboard() {
       const scores = JSON.parse(localStorage.getItem("scores")) || [];
+      
+      // Filter only student results (exclude guest/anonymous results if needed)
+      const studentScores = scores.filter(score => 
+        score.userRole === 'siswa' || 
+        (!score.userRole && score.username !== 'Anonymous') ||
+        score.username.includes('Demo') // Include demo results for testing
+      );
+      
       const tableBody = document.getElementById("scoreTableBody");
       const statsOverview = document.getElementById("stats-overview");
       
       // Clear existing content
       tableBody.innerHTML = '';
       
-      if (scores.length === 0) {
-        tableBody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 40px; color: #666; font-style: italic;">Belum ada data hasil tryout</td></tr>';
+      console.log('All scores:', scores);
+      console.log('Student scores:', studentScores);
+      
+      if (studentScores.length === 0) {
+        tableBody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 40px; color: #666; font-style: italic;">Belum ada siswa yang mengerjakan kuis. <br><small>Pastikan siswa login terlebih dahulu sebelum mengerjakan kuis.</small></td></tr>';
         statsOverview.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #666; font-style: italic;">Belum ada data untuk ditampilkan</div>';
         return;
       }
       
       // Calculate statistics
-      const totalStudents = scores.length;
-      const totalScore = scores.reduce((sum, s) => sum + (parseInt(s.score) || 0), 0);
+      const totalStudents = studentScores.length;
+      const totalScore = studentScores.reduce((sum, s) => sum + (parseInt(s.score) || 0), 0);
       const averageScore = (totalScore / totalStudents).toFixed(1);
-      const highestScore = Math.max(...scores.map(s => parseInt(s.score) || 0));
-      const passedStudents = scores.filter(s => (parseInt(s.score) || 0) >= 70).length;
+      const highestScore = Math.max(...studentScores.map(s => parseInt(s.score) || 0));
+      const passedStudents = studentScores.filter(s => (parseInt(s.score) || 0) >= 70).length;
       
       // Update statistics overview
       statsOverview.innerHTML = `
@@ -108,7 +119,7 @@
       `;
       
       // Populate table
-      scores.forEach((s, index) => {
+      studentScores.forEach((s, index) => {
         const score = parseInt(s.score) || 0;
         let grade = s.grade || '';
         let gradeColor = '';
@@ -131,13 +142,25 @@
         
         const row = document.createElement("tr");
         row.style.borderBottom = "1px solid #e9ecef";
+        
+        // Add user role indicator
+        const roleIndicator = s.userRole === 'siswa' ? '👨‍🎓' : '👤';
+        const roleDisplay = s.userRole ? `<small style="color: #666; display: block; font-weight: normal;">${s.userRole}</small>` : '';
+        
         row.innerHTML = `
-          <td style="padding: 15px; font-weight: 500; color: #1a202c;">${s.username || 'Unknown'}</td>
-          <td style="padding: 15px; text-align: center; font-weight: bold; color: ${gradeColor}; font-size: 1.2rem;">${score}</td>
+          <td style="padding: 15px; font-weight: 500; color: #1a202c;">
+            ${roleIndicator} ${s.username || 'Unknown'}
+            ${roleDisplay}
+          </td>
+          <td style="padding: 15px; text-align: center; font-weight: bold; color: ${gradeColor}; font-size: 1.2rem;">${score}%</td>
           <td style="padding: 15px; text-align: center; color: #1a202c;">${s.correctAnswers || 0}/${s.totalQuestions || 30}</td>
           <td style="padding: 15px; text-align: center; font-family: monospace; color: #1a202c;">${s.timeElapsed || 'N/A'}</td>
           <td style="padding: 15px; text-align: center; font-size: 0.9rem; color: #1a202c;">${s.date || 'Unknown'}</td>
-          <td style="padding: 15px; text-align: center; font-weight: bold; color: ${gradeColor}; font-size: 1.3rem;">${grade}</td>
+          <td style="padding: 15px; text-align: center;">
+            <span style="background: ${gradeColor}; color: white; padding: 5px 12px; border-radius: 20px; font-weight: 600; font-size: 0.9rem;">
+              ${grade}
+            </span>
+          </td>
         `;
         
         // Add hover effect
@@ -153,15 +176,23 @@
     }
     
     function exportResults() {
-      const scores = JSON.parse(localStorage.getItem("scores")) || [];
-      if (scores.length === 0) {
-        alert('Tidak ada data untuk di-export!');
+      const allScores = JSON.parse(localStorage.getItem("scores")) || [];
+      
+      // Filter only student results for export
+      const studentScores = allScores.filter(score => 
+        score.userRole === 'siswa' || 
+        (!score.userRole && score.username !== 'Anonymous') ||
+        score.username.includes('Demo')
+      );
+      
+      if (studentScores.length === 0) {
+        alert('Tidak ada data siswa untuk di-export!');
         return;
       }
       
-      let csvContent = "Nama Siswa,Nilai,Jawaban Benar,Total Soal,Waktu,Tanggal,Grade\\n";
+      let csvContent = "Nama Siswa,Role,Nilai,Jawaban Benar,Total Soal,Waktu,Tanggal,Grade\\n";
       
-      scores.forEach(s => {
+      studentScores.forEach(s => {
         const score = s.score || 0;
         let grade = '';
         if (score >= 90) grade = 'A';
