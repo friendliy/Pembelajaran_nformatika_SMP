@@ -1,23 +1,21 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Guru - Pembelajaran Informatika SMP        csvContent += `"${s.username || 'Unknown'}","${s.userRole || 'guest'}",${score},"${s.correctAnswers || 0}/${s.totalQuestions || 30}","${s.timeElapsed || 'N/A'}","${s.date || 'Unknown'}","${grade}"\\n`;/title>
-    <link rel="stylesheet" href="style.css">
-    <script src="auth.js"></script>
-</head>
-<body> html>
-<html lang="id">
-<head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard Guru - Informatika SMP</title>
   <link rel="stylesheet" href="style.css">
+  <script src="auth.js"></script>
+  <script src="cloud-sync.js"></script>
 </head>
 <body>
   <div class="container">
-    <h1>📊 Dashboard Guru</h1>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+      <h1>📊 Dashboard Guru</h1>
+      <div id="connection-indicator" style="background: #e9ecef; padding: 8px 15px; border-radius: 20px; font-size: 0.9rem; color: #6c757d;">
+        🔍 Checking connection...
+      </div>
+    </div>
     
     <div class="content-card">
       <h2 style="color: #667eea; text-align: center; margin-bottom: 30px;">📈 Hasil Tryout Siswa</h2>
@@ -62,8 +60,32 @@
   </div>
 
   <script>
-    function loadDashboard() {
-      const scores = JSON.parse(localStorage.getItem("scores")) || [];
+    // Initialize cloud manager
+    const cloudManager = new CloudDataManager();
+    
+    async function loadDashboard() {
+      // Show loading state
+      showLoadingStatus();
+      
+      let scores = [];
+      
+      try {
+        // Try to load from cloud first
+        const cloudData = await cloudManager.loadResultsFromCloud();
+        if (cloudData && cloudData.length > 0) {
+          scores = cloudData;
+          showCloudStatus('✅ Data loaded from cloud', 'success');
+        } else {
+          // Fallback to local storage
+          scores = JSON.parse(localStorage.getItem("scores")) || [];
+          showCloudStatus('⚠️ Using local data', 'warning');
+        }
+      } catch (error) {
+        console.error('Error loading cloud data:', error);
+        // Fallback to local storage
+        scores = JSON.parse(localStorage.getItem("scores")) || [];
+        showCloudStatus('❌ Cloud failed, using local data', 'error');
+      }
       
       // Filter only student results (exclude guest/anonymous results if needed)
       const studentScores = scores.filter(score => 
@@ -175,8 +197,66 @@
       });
     }
     
-    function exportResults() {
-      const allScores = JSON.parse(localStorage.getItem("scores")) || [];
+    function showLoadingStatus() {
+      const statusDiv = document.getElementById("cloud-status") || createStatusDiv();
+      statusDiv.innerHTML = '🔄 Loading data...';
+      statusDiv.className = 'cloud-status loading';
+    }
+    
+    function showCloudStatus(message, type) {
+      const statusDiv = document.getElementById("cloud-status") || createStatusDiv();
+      statusDiv.innerHTML = message;
+      statusDiv.className = `cloud-status ${type}`;
+      
+      // Auto-hide after 5 seconds
+      setTimeout(() => {
+        statusDiv.style.opacity = '0.5';
+      }, 5000);
+    }
+    
+    function createStatusDiv() {
+      const statusDiv = document.createElement('div');
+      statusDiv.id = 'cloud-status';
+      statusDiv.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 10px 15px;
+        border-radius: 5px;
+        z-index: 1000;
+        font-weight: 500;
+        transition: opacity 0.3s;
+      `;
+      document.body.appendChild(statusDiv);
+      
+      // Add CSS for different status types
+      const style = document.createElement('style');
+      style.textContent = `
+        .cloud-status.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .cloud-status.warning { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        .cloud-status.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .cloud-status.loading { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+      `;
+      document.head.appendChild(style);
+      
+      return statusDiv;
+    }
+    
+    async function exportResults() {
+      let allScores = [];
+      
+      try {
+        // Try to get data from cloud first
+        const cloudData = await cloudManager.loadResultsFromCloud();
+        if (cloudData && cloudData.length > 0) {
+          allScores = cloudData;
+        } else {
+          allScores = JSON.parse(localStorage.getItem("scores")) || [];
+        }
+      } catch (error) {
+        console.error('Error loading cloud data for export:', error);
+        allScores = JSON.parse(localStorage.getItem("scores")) || [];
+      }
       
       // Filter only student results for export
       const studentScores = allScores.filter(score => 
@@ -227,13 +307,33 @@
       }
     }
     
-    function refreshData() {
-      loadDashboard();
-      alert('Data telah di-refresh!');
+    async function refreshData() {
+      await loadDashboard();
+      showCloudStatus('✅ Data refreshed from cloud', 'success');
     }
     
-    // Load dashboard when page loads
-    document.addEventListener('DOMContentLoaded', loadDashboard);
+    function updateConnectionIndicator() {
+      const indicator = document.getElementById('connection-indicator');
+      if (navigator.onLine) {
+        indicator.innerHTML = '🌐 Online - Cloud Sync Active';
+        indicator.style.background = '#d4edda';
+        indicator.style.color = '#155724';
+      } else {
+        indicator.innerHTML = '📴 Offline - Local Data Only';
+        indicator.style.background = '#f8d7da';
+        indicator.style.color = '#721c24';
+      }
+    }
+    
+    // Load dashboard and update connection status when page loads
+    document.addEventListener('DOMContentLoaded', async function() {
+      updateConnectionIndicator();
+      await loadDashboard();
+      
+      // Listen for online/offline events
+      window.addEventListener('online', updateConnectionIndicator);
+      window.addEventListener('offline', updateConnectionIndicator);
+    });
   </script>
 </body>
 </html>

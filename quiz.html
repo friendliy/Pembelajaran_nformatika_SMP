@@ -1,23 +1,15 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kuis Informatika SMP</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="auth.js"></script>
-</head>
-<body> html>
-<html lang="id">
-<head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tryout Informatika SMP</title>
+  <title>Kuis Informatika SMP</title>
   <link rel="stylesheet" href="style.css">
+  <script src="auth.js"></script>
 </head>
 <body>
   <div class="container">
-    <h1>📝 Tryout Informatika SMP</h1>
+    <h1>📝 Kuis Informatika SMP</h1>
     
     <!-- Timer -->
     <div id="timer" class="timer">⏰ Waktu: 30:00</div>
@@ -37,11 +29,12 @@
       <!-- Submit button -->
       <div style="text-align: center; margin-top: 30px;">
         <button id="submit-btn" onclick="submitQuiz()">📝 Kumpulkan Jawaban</button>
+        <button onclick="testSubmit()" style="background: #ffc107; margin-left: 10px;">🧪 Test Submit</button>
       </div>
     </div>
     
     <!-- Results -->
-    <div id="result"></div>
+    <div id="result" style="display: none; margin-top: 30px;"></div>
     
     <!-- Navigation -->
     <div class="nav-links">
@@ -54,24 +47,50 @@
   <script>
     // Check if user is logged in before allowing quiz access
     document.addEventListener('DOMContentLoaded', function() {
-      const currentUser = getCurrentUser();
-      if (!currentUser) {
+      let currentUser = null;
+      
+      // Safely check for auth function
+      try {
+        if (typeof getCurrentUser === 'function') {
+          currentUser = getCurrentUser();
+        }
+      } catch (error) {
+        console.warn('Auth system not available, allowing guest access:', error);
+      }
+      
+      // If auth system is available but user not logged in, redirect
+      if (typeof getCurrentUser === 'function' && !currentUser) {
         alert('Anda harus login terlebih dahulu untuk mengerjakan kuis!');
         window.location.href = 'login.html';
         return;
       }
       
       // Show welcome message for logged in user
-      const welcomeMsg = document.createElement('div');
-      welcomeMsg.style.cssText = 'background: rgba(102, 126, 234, 0.1); padding: 15px; border-radius: 10px; margin-bottom: 20px; text-align: center; border: 2px solid #667eea;';
-      welcomeMsg.innerHTML = `
-        <h3 style="color: #667eea; margin: 0;">Selamat Datang, ${currentUser.fullName}!</h3>
-        <p style="margin: 5px 0; color: #4a5568;">Anda login sebagai: <strong>${currentUser.role === 'siswa' ? '👨‍🎓 Siswa' : '👨‍🏫 Guru'}</strong></p>
-      `;
-      
-      const container = document.querySelector('.container');
-      if (container && container.firstChild) {
-        container.insertBefore(welcomeMsg, container.firstChild.nextSibling);
+      if (currentUser) {
+        const welcomeMsg = document.createElement('div');
+        welcomeMsg.style.cssText = 'background: rgba(102, 126, 234, 0.1); padding: 15px; border-radius: 10px; margin-bottom: 20px; text-align: center; border: 2px solid #667eea;';
+        welcomeMsg.innerHTML = `
+          <h3 style="color: #667eea; margin: 0;">Selamat Datang, ${currentUser.fullName}!</h3>
+          <p style="margin: 5px 0; color: #4a5568;">Anda login sebagai: <strong>${currentUser.role === 'siswa' ? '👨‍🎓 Siswa' : '👨‍🏫 Guru'}</strong></p>
+        `;
+        
+        const container = document.querySelector('.container');
+        if (container && container.firstChild) {
+          container.insertBefore(welcomeMsg, container.firstChild.nextSibling);
+        }
+      } else {
+        // Show guest message if auth not available
+        const guestMsg = document.createElement('div');
+        guestMsg.style.cssText = 'background: rgba(255, 193, 7, 0.1); padding: 15px; border-radius: 10px; margin-bottom: 20px; text-align: center; border: 2px solid #ffc107;';
+        guestMsg.innerHTML = `
+          <h3 style="color: #856404; margin: 0;">Mode Guest</h3>
+          <p style="margin: 5px 0; color: #856404;">Anda dapat mengerjakan kuis sebagai tamu. Hasil akan tersimpan lokal.</p>
+        `;
+        
+        const container = document.querySelector('.container');
+        if (container && container.firstChild) {
+          container.insertBefore(guestMsg, container.firstChild.nextSibling);
+        }
       }
     });
   </script>

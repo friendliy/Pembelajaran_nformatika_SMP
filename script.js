@@ -124,7 +124,28 @@ function updateProgress() {
   }
 }
 
+function testSubmit() {
+  console.log('=== TEST SUBMIT ===');
+  console.log('Questions:', questions);
+  console.log('User Answers:', userAnswers);
+  console.log('Submit button exists:', !!document.getElementById('submit-btn'));
+  console.log('Result container exists:', !!document.getElementById('result'));
+  
+  // Add a test answer if none exist
+  if (Object.keys(userAnswers).length === 0 && questions.length > 0) {
+    userAnswers[questions[0].id] = questions[0].type === 'multiple-choice' ? 'A' : 'test';
+    console.log('Added test answer:', userAnswers);
+  }
+  
+  // Try to submit
+  submitQuiz();
+}
+
 function submitQuiz() {
+  console.log('Submit quiz called');
+  console.log('User answers:', userAnswers);
+  console.log('Questions loaded:', questions.length);
+  
   if (Object.keys(userAnswers).length === 0) {
     alert('Anda belum menjawab satupun soal!');
     return;
@@ -133,6 +154,7 @@ function submitQuiz() {
   const confirmed = confirm(`Anda telah menjawab ${Object.keys(userAnswers).length} dari ${questions.length} soal.\n\nApakah Anda yakin ingin mengumpulkan jawaban?`);
   if (!confirmed) return;
   
+  console.log('Proceeding to calculate results...');
   calculateAndShowResults();
 }
 
@@ -142,15 +164,25 @@ function autoSubmitQuiz() {
 }
 
 function calculateAndShowResults() {
+  console.log('Calculate and show results called');
   clearInterval(timerInterval);
   
   let score = 0;
   let correctAnswers = 0;
   let detailedResults = [];
   
-  // Get current user info instead of prompting
-  const currentUser = getCurrentUser();
+  // Get current user info safely with fallback
+  let currentUser = null;
   let studentName = 'Anonymous';
+  
+  try {
+    if (typeof getCurrentUser === 'function') {
+      currentUser = getCurrentUser();
+      console.log('Current user:', currentUser);
+    }
+  } catch (error) {
+    console.warn('Auth function not available:', error);
+  }
   
   if (currentUser) {
     studentName = currentUser.fullName;
@@ -158,6 +190,8 @@ function calculateAndShowResults() {
     // If no user logged in, prompt for name
     studentName = prompt("Masukkan Nama Siswa:") || "Siswa";
   }
+  
+  console.log('Student name:', studentName);
   
   questions.forEach((q, index) => {
     const userAnswer = userAnswers[q.id];
@@ -229,13 +263,21 @@ function calculateAndShowResults() {
     <button onclick="resetQuiz()" style="background: #28a745; margin: 10px 5px;">🔄 Ulangi Quiz</button>
   `;
   
-  // Store results with all necessary data - Get current user info
-  const loggedInUser = getCurrentUser();
+  // Store results with all necessary data - Get current user info safely
+  let loggedInUser = null;
+  try {
+    if (typeof getCurrentUser === 'function') {
+      loggedInUser = getCurrentUser();
+    }
+  } catch (error) {
+    console.warn('Auth function not available for saving:', error);
+  }
+  
   const username = loggedInUser ? loggedInUser.fullName : studentName;
   const userRole = loggedInUser ? loggedInUser.role : 'guest';
   
   let scores = JSON.parse(localStorage.getItem("scores")) || [];
-  scores.push({ 
+  const resultData = { 
     username: username,
     userRole: userRole,
     userId: loggedInUser ? loggedInUser.username : 'anonymous_' + Date.now(),
@@ -245,17 +287,55 @@ function calculateAndShowResults() {
     timeElapsed: timeString,
     date: new Date().toLocaleString('id-ID'),
     detailedResults: detailedResults,
-    grade: grade.split(' ')[0] // Just the letter grade
-  });
+    grade: grade.split(' ')[0], // Just the letter grade
+    serverSource: window.location.hostname || 'localhost'
+  };
+  
+  scores.push(resultData);
+  console.log('Final score:', finalScore);
+  console.log('Grade:', grade);
+  console.log('Saving to localStorage...');
+  
   localStorage.setItem("scores", JSON.stringify(scores));
+  
+  // Save to cloud if available
+  if (window.cloudManager) {
+    cloudManager.saveResultToCloud(resultData).then(result => {
+      console.log('☁️ Cloud save result:', result);
+      if (result.success) {
+        showCloudSyncStatus('success', 'Data berhasil disimpan ke cloud');
+      } else {
+        showCloudSyncStatus('warning', 'Data disimpan lokal, akan sync otomatis');
+      }
+    }).catch(error => {
+      console.error('Cloud save error:', error);
+      showCloudSyncStatus('error', 'Gagal sync ke cloud, data tersimpan lokal');
+    });
+  }
   
   // Debug log to check if data is saved
   console.log('Quiz results saved:', scores[scores.length - 1]);
   
   // Hide quiz container and show result
-  document.getElementById("quiz-container").style.display = 'none';
-  document.getElementById("submit-btn").style.display = 'none';
-  document.getElementById("progress-container").style.display = 'none';
+  try {
+    const quizContainer = document.getElementById("quiz-container");
+    const submitBtn = document.getElementById("submit-btn");
+    const progressContainer = document.getElementById("progress-container");
+    const resultContainer = document.getElementById("result");
+    
+    if (quizContainer) quizContainer.style.display = 'none';
+    if (submitBtn) submitBtn.style.display = 'none';
+    if (progressContainer) progressContainer.style.display = 'none';
+    
+    if (resultContainer) {
+      resultContainer.style.display = 'block';
+      console.log('Results displayed successfully');
+    } else {
+      console.error('Result container not found!');
+    }
+  } catch (error) {
+    console.error('Error hiding/showing elements:', error);
+  }
 }
 
 function showDetailedResults() {
@@ -352,3 +432,60 @@ function addSampleData() {
 document.addEventListener('DOMContentLoaded', function() {
   addSampleData();
 });
+
+// Cloud sync status display
+function showCloudSyncStatus(type, message) {
+  const statusEl = document.getElementById('cloud-sync-status');
+  if (!statusEl) {
+    // Create status element if doesn't exist
+    const status = document.createElement('div');
+    status.id = 'cloud-sync-status';
+    status.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 10px 15px;
+      border-radius: 8px;
+      color: white;
+      font-weight: 600;
+      z-index: 1000;
+      max-width: 300px;
+      font-size: 0.9rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      opacity: 0;
+      transform: translateX(100%);
+      transition: all 0.3s ease;
+    `;
+    document.body.appendChild(status);
+  }
+  
+  const status = document.getElementById('cloud-sync-status');
+  
+  // Set colors based on type
+  const colors = {
+    success: '#28a745',
+    warning: '#ffc107', 
+    error: '#dc3545'
+  };
+  
+  const icons = {
+    success: '✅',
+    warning: '⚠️',
+    error: '❌'
+  };
+  
+  status.style.backgroundColor = colors[type] || '#6c757d';
+  status.innerHTML = `${icons[type] || 'ℹ️'} ${message}`;
+  
+  // Show animation
+  setTimeout(() => {
+    status.style.opacity = '1';
+    status.style.transform = 'translateX(0)';
+  }, 100);
+  
+  // Hide after 5 seconds
+  setTimeout(() => {
+    status.style.opacity = '0';
+    status.style.transform = 'translateX(100%)';
+  }, 5000);
+}
