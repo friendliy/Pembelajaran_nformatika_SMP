@@ -36,24 +36,35 @@
             <button onclick="debugQuizSystem()" style="background: #6c757d; color: white; padding: 8px 16px; border: none; border-radius: 5px; cursor: pointer; font-size: 0.9rem; margin: 2px;">
               🔍 Debug Info
             </button>
+            <button onclick="addTestAnswers()" style="background: #fd7e14; color: white; padding: 8px 16px; border: none; border-radius: 5px; cursor: pointer; font-size: 0.9rem; margin: 2px;">
+              🧪 Isi Jawaban Test
+            </button>
             <button onclick="console.clear(); console.log('Console cleared')" style="background: #dc3545; color: white; padding: 8px 16px; border: none; border-radius: 5px; cursor: pointer; font-size: 0.9rem; margin: 2px;">
               🗑️ Clear Console
             </button>
           </div>
           <div style="margin-top: 20px; padding: 15px; background: rgba(255,193,7,0.1); border-radius: 8px; font-size: 0.9rem; color: #856404;">
-            <strong>📋 Panduan Troubleshooting:</strong><br>
-            1. Klik "Mulai Quiz Demo" untuk memulai<br>
-            2. Jika tidak berfungsi, tekan F12 → Console<br>
-            3. Klik "Debug Info" untuk cek status sistem<br>
-            4. Refresh halaman jika masih bermasalah
+            <strong>📋 Panduan Penggunaan:</strong><br>
+            1. <strong>Mulai Quiz:</strong> Klik "Mulai Quiz Demo" atau "Muat Soal Lengkap"<br>
+            2. <strong>Test Mode:</strong> Klik "Isi Jawaban Test" untuk auto-fill jawaban<br>
+            3. <strong>Debug:</strong> Tekan F12 → Console, lalu klik "Debug Info"<br>
+            4. <strong>Reset:</strong> Gunakan "Hapus Semua Jawaban" atau "Refresh Halaman"<br>
+            5. <strong>Submit:</strong> Klik "Kumpulkan Jawaban" kapan saja (partial submit OK)
           </div>
         </div>
       </div>
       
       <!-- Submit button -->
       <div style="text-align: center; margin-top: 30px;">
-        <button id="submit-btn" onclick="submitQuiz()">📝 Kumpulkan Jawaban</button>
-        <button onclick="testSubmit()" style="background: #ffc107; margin-left: 10px;">🧪 Test Submit</button>
+        <button id="submit-btn" onclick="submitQuiz()" style="padding: 12px 24px; font-size: 1rem; border-radius: 8px; border: none; cursor: pointer; margin: 5px;">📝 Kumpulkan Jawaban</button>
+        <button onclick="testSubmit()" style="background: #ffc107; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin: 5px;">🧪 Test Submit</button>
+        <br>
+        <button onclick="clearAllAnswers()" style="background: #dc3545; color: white; padding: 8px 16px; border: none; border-radius: 5px; cursor: pointer; margin: 5px; font-size: 0.9rem;">
+          🗑️ Hapus Semua Jawaban
+        </button>
+        <button onclick="location.reload()" style="background: #6c757d; color: white; padding: 8px 16px; border: none; border-radius: 5px; cursor: pointer; margin: 5px; font-size: 0.9rem;">
+          🔄 Refresh Halaman
+        </button>
       </div>
     </div>
     

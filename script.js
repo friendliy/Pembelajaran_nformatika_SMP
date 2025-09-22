@@ -8,6 +8,18 @@ let timeLimit = 30 * 60; // 30 minutes in seconds
 // Initialize cloud manager when available
 let cloudManager = null;
 
+// Ensure all functions are properly defined and accessible globally
+window.loadSampleQuestions = loadSampleQuestions;
+window.loadQuestions = loadQuestions;
+window.debugQuizSystem = debugQuizSystem;
+window.submitQuiz = submitQuiz;
+window.testSubmit = testSubmit;
+window.updateProgress = updateProgress;
+window.showDetailedResults = showDetailedResults;
+window.resetQuiz = resetQuiz;
+window.clearAllAnswers = clearAllAnswers;
+window.addTestAnswers = addTestAnswers;
+
 // Initialize immediately when script loads
 (function() {
   console.log('Script.js initializing...');
@@ -17,7 +29,7 @@ let cloudManager = null;
     document.addEventListener('DOMContentLoaded', initializeQuiz);
   } else {
     // DOM already loaded
-    initializeQuiz();
+    setTimeout(initializeQuiz, 100);
   }
 })();
 
@@ -31,24 +43,26 @@ function initializeQuiz() {
   
   addSampleData();
   
-  // Auto-load sample questions after a delay
+  // Auto-load sample questions after a delay if container exists
   setTimeout(function() {
-    console.log('Auto-loading quiz...');
+    console.log('Checking if auto-load needed...');
     const container = document.getElementById("quiz-container");
     if (container && questions.length === 0) {
+      console.log('Auto-loading sample questions...');
       loadSampleQuestions();
     }
-  }, 1000);
+  }, 1500);
 }
 
 // Load questions function
 
 async function loadQuestions() {
-  console.log('Loading questions...');
+  console.log('=== Loading questions from JSON file ===');
   
   const container = document.getElementById("quiz-container");
   if (!container) {
-    console.error('Quiz container not found!');
+    console.error('Quiz container not found! Retrying...');
+    setTimeout(loadQuestions, 1000);
     return;
   }
   
@@ -56,64 +70,52 @@ async function loadQuestions() {
   container.innerHTML = `
     <div style="text-align: center; padding: 40px;">
       <div style="font-size: 3rem; margin-bottom: 20px;">⏳</div>
-      <p style="font-size: 1.2rem; color: #666;">Memuat soal-soal quiz...</p>
+      <p style="font-size: 1.2rem; color: #667eea;">Memuat soal dari file JSON...</p>
     </div>
   `;
   
   try {
-    // Try fetch first
-    let data;
-    try {
-      console.log('Trying to fetch questions.json...');
-      const response = await fetch("questions.json");
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      data = await response.json();
-      console.log('Successfully loaded from questions.json:', data.length, 'questions');
-    } catch (fetchError) {
-      console.warn('Fetch failed, using sample questions:', fetchError);
-      
-      // Show fallback message and use sample questions
-      container.innerHTML = `
-        <div style="text-align: center; padding: 40px;">
-          <div style="font-size: 2rem; margin-bottom: 20px;">⚠️</div>
-          <p style="color: #856404; font-size: 1.1rem; margin-bottom: 20px;">Tidak dapat memuat file soal utama</p>
-          <p style="color: #666; margin-bottom: 20px;">Menggunakan soal sampel untuk demo</p>
-          <button onclick="loadQuestions()" style="background: #28a745; color: white; padding: 8px 16px; border: none; border-radius: 5px; cursor: pointer; margin-right: 10px;">
-            🔄 Coba Lagi
-          </button>
-          <button onclick="loadSampleQuestions()" style="background: #17a2b8; color: white; padding: 8px 16px; border: none; border-radius: 5px; cursor: pointer;">
-            📝 Lanjut dengan Soal Demo
-          </button>
-        </div>
-      `;
-      return;
+    console.log('Attempting to fetch questions.json...');
+    const response = await fetch("questions.json");
+    
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }
     
+    const data = await response.json();
+    console.log('Successfully loaded from questions.json:', data.length, 'questions');
+    
     if (!data || data.length === 0) {
-      throw new Error('No questions found in the file');
+      throw new Error('File JSON kosong atau tidak berisi soal');
     }
     
     questions = data;
-    console.log('Questions loaded successfully:', questions.length);
-    renderQuiz();
-    startTimer();
+    setTimeout(() => {
+      renderQuiz();
+      startTimer();
+      console.log('✅ Quiz from JSON rendered successfully!');
+    }, 500);
     
-  } catch (error) {
-    console.error('Error loading questions:', error);
+  } catch (fetchError) {
+    console.warn('❌ Fetch failed:', fetchError.message);
     
-    // Show error state with retry option
+    // Show fallback options
     container.innerHTML = `
       <div style="text-align: center; padding: 40px;">
-        <p style="color: red; font-size: 1.2rem; margin-bottom: 15px;">❌ Error loading questions</p>
-        <p style="color: #666; margin-bottom: 20px;">Error: ${error.message}</p>
-        <button onclick="loadQuestions()" style="background: #28a745; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin-right: 10px;">
-          🔄 Try Again
-        </button>
-        <button onclick="loadSampleQuestions()" style="background: #17a2b8; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">
-          📝 Use Sample Questions
-        </button>
+        <div style="font-size: 2rem; margin-bottom: 20px;">⚠️</div>
+        <p style="color: #dc3545; font-size: 1.1rem; margin-bottom: 10px;">Tidak dapat memuat file questions.json</p>
+        <p style="color: #666; margin-bottom: 20px;">Error: ${fetchError.message}</p>
+        <div>
+          <button onclick="loadQuestions()" style="background: #28a745; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin: 5px;">
+            🔄 Coba Lagi
+          </button>
+          <button onclick="loadSampleQuestions()" style="background: #17a2b8; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin: 5px;">
+            📝 Gunakan Soal Demo
+          </button>
+        </div>
+        <div style="margin-top: 15px; font-size: 0.9rem; color: #666;">
+          <p>💡 Tips: Pastikan file questions.json ada dan dapat diakses</p>
+        </div>
       </div>
     `;
   }
@@ -213,6 +215,7 @@ function getSampleQuestions() {
 function debugQuizSystem() {
   console.log('=== QUIZ SYSTEM DEBUG ===');
   console.log('Questions loaded:', questions.length);
+  console.log('User answers:', Object.keys(userAnswers).length);
   console.log('Quiz container exists:', !!document.getElementById("quiz-container"));
   console.log('Progress container exists:', !!document.getElementById("progress-container"));
   console.log('Timer element exists:', !!document.getElementById("timer"));
@@ -220,7 +223,78 @@ function debugQuizSystem() {
   console.log('Result container exists:', !!document.getElementById("result"));
   console.log('Document ready state:', document.readyState);
   console.log('Current questions:', questions);
+  console.log('Current answers:', userAnswers);
+  console.log('Timer running:', !!timerInterval);
+  
+  // Show alert with summary
+  alert(`📊 Quiz System Status:
+  
+✅ Questions: ${questions.length} loaded
+✅ Answers: ${Object.keys(userAnswers).length} provided
+✅ Timer: ${timerInterval ? 'Running' : 'Stopped'}
+✅ Submit button: ${document.getElementById("submit-btn") ? 'Available' : 'Missing'}
+
+Check console for detailed info.`);
+  
   return 'Debug info logged to console';
+}
+
+// Function to clear all answers
+function clearAllAnswers() {
+  if (confirm('🗑️ Apakah Anda yakin ingin menghapus semua jawaban?\n\nTindakan ini tidak dapat dibatalkan.')) {
+    console.log('Clearing all answers...');
+    
+    // Clear userAnswers object
+    userAnswers = {};
+    
+    // Clear all radio button selections
+    const radioButtons = document.querySelectorAll('input[type="radio"]');
+    radioButtons.forEach(radio => radio.checked = false);
+    
+    // Clear all text inputs
+    const textInputs = document.querySelectorAll('input[type="text"]');
+    textInputs.forEach(input => input.value = '');
+    
+    // Update progress
+    updateProgress();
+    
+    console.log('All answers cleared');
+    alert('✅ Semua jawaban telah dihapus!');
+  }
+}
+
+// Function to add answers for testing
+function addTestAnswers() {
+  if (!questions || questions.length === 0) {
+    alert('❌ Tidak ada soal yang dimuat!');
+    return;
+  }
+  
+  console.log('Adding test answers...');
+  
+  questions.forEach((q, index) => {
+    if (q.type === "multiple-choice") {
+      // Select first option for multiple choice
+      const firstOption = q.options[0];
+      userAnswers[q.id] = firstOption;
+      
+      // Check the radio button
+      const radio = document.querySelector(`input[name="q${q.id}"][value="${firstOption}"]`);
+      if (radio) radio.checked = true;
+      
+    } else if (q.type === "short-answer") {
+      // Use correct answer for short answer
+      userAnswers[q.id] = q.answer;
+      
+      // Fill the text input
+      const input = document.getElementById(`q${q.id}`);
+      if (input) input.value = q.answer;
+    }
+  });
+  
+  updateProgress();
+  console.log('Test answers added:', userAnswers);
+  alert(`✅ ${questions.length} jawaban test telah ditambahkan!`);
 }
 
 function startTimer() {
@@ -308,6 +382,13 @@ function renderQuiz() {
 }
 
 function updateProgress() {
+  console.log('Updating progress...');
+  
+  if (!questions || questions.length === 0) {
+    console.warn('No questions available for progress update');
+    return;
+  }
+  
   let answeredCount = 0;
   
   questions.forEach(q => {
@@ -343,17 +424,25 @@ function updateProgress() {
     progressText.textContent = `Pertanyaan dijawab: ${answeredCount} dari ${questions.length}`;
   }
   
-  // Enable/disable submit button based on completion
+  // Update submit button - make it always available but change appearance
   const submitBtn = document.getElementById('submit-btn');
   if (submitBtn) {
     if (answeredCount === questions.length) {
       submitBtn.style.background = 'linear-gradient(135deg, #28a745 0%, #20c997 100%)';
       submitBtn.innerHTML = '✅ Kumpulkan Jawaban (Semua terisi)';
+      submitBtn.disabled = false;
+    } else if (answeredCount > 0) {
+      submitBtn.style.background = 'linear-gradient(135deg, #ffc107 0%, #ffcd39 100%)';
+      submitBtn.innerHTML = `⚠️ Kumpulkan Jawaban (${answeredCount}/${questions.length})`;
+      submitBtn.disabled = false;
     } else {
       submitBtn.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
       submitBtn.innerHTML = `📝 Kumpulkan Jawaban (${answeredCount}/${questions.length})`;
+      submitBtn.disabled = false; // Allow submission even with no answers for testing
     }
   }
+  
+  console.log(`Progress updated: ${answeredCount}/${questions.length} answered`);
 }
 
 function testSubmit() {
@@ -375,17 +464,29 @@ function testSubmit() {
 }
 
 function submitQuiz() {
-  console.log('Submit quiz called');
-  console.log('User answers:', userAnswers);
-  console.log('Questions loaded:', questions.length);
+  console.log('=== SUBMIT QUIZ CALLED ===');
+  console.log('Questions available:', questions.length);
+  console.log('User answers:', Object.keys(userAnswers).length);
+  console.log('Current answers:', userAnswers);
   
-  if (Object.keys(userAnswers).length === 0) {
-    alert('Anda belum menjawab satupun soal!');
+  if (!questions || questions.length === 0) {
+    alert('⚠️ Tidak ada soal yang dimuat!\n\nSilakan muat soal terlebih dahulu dengan klik "Mulai Quiz Demo" atau "Muat Soal Lengkap".');
     return;
   }
   
-  const confirmed = confirm(`Anda telah menjawab ${Object.keys(userAnswers).length} dari ${questions.length} soal.\n\nApakah Anda yakin ingin mengumpulkan jawaban?`);
-  if (!confirmed) return;
+  const answeredCount = Object.keys(userAnswers).length;
+  const totalQuestions = questions.length;
+  
+  if (answeredCount === 0) {
+    const proceed = confirm('⚠️ Anda belum menjawab satupun soal!\n\nApakah Anda yakin ingin mengumpulkan jawaban kosong?\n\n(Klik Cancel untuk melanjutkan mengerjakan)');
+    if (!proceed) return;
+  } else if (answeredCount < totalQuestions) {
+    const proceed = confirm(`⚠️ Anda baru menjawab ${answeredCount} dari ${totalQuestions} soal.\n\nSoal yang belum dijawab akan dianggap salah.\n\nApakah Anda yakin ingin mengumpulkan jawaban sekarang?\n\n(Klik Cancel untuk melanjutkan mengerjakan)`);
+    if (!proceed) return;
+  } else {
+    const proceed = confirm(`✅ Anda telah menjawab semua ${totalQuestions} soal.\n\nApakah Anda yakin ingin mengumpulkan jawaban?`);
+    if (!proceed) return;
+  }
   
   console.log('Proceeding to calculate results...');
   calculateAndShowResults();
